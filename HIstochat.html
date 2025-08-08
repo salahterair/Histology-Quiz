@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>General Histology MCQ — UMST Faculty of Medicine</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#0b1020; --ink:#e5e7eb; --muted:#9ca3af;
+    --line:#1f2937; --accent:#22c55e; --danger:#ef4444; --brand:#d91f26;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(135deg,#0b1226,#0f172a);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:18px}
+  header{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:12px;text-align:center}
+  header img{width:100px;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+  .uni{font-weight:800;font-size:18px;line-height:1.2}
+  .dept{color:var(--muted);font-size:14px}
+  .batch{color:#e9e9e9;font-weight:600}
+  .card{background:linear-gradient(180deg,#0b1020,#090f1a);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.25);padding:18px}
+  .title{font-weight:800;font-size:22px;margin:2px 0 10px}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}
+  .meter{height:10px;background:#0b0f1a;border:1px solid #23314a;border-radius:999px;overflow:hidden}
+  .meter>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#22d3ee);transition:width .35s ease}
+  .qbox{margin-top:16px}
+  .q{font-weight:700;margin:2px 0 8px}
+  .options{display:grid;gap:10px;margin-top:8px}
+  label.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid #263243;background:#0b1020;border-radius:12px;padding:10px;cursor:pointer}
+  input[type=radio]{margin-top:4px}
+  .feedback{margin-top:10px;font-size:14px}
+  .good{color:var(--accent)}
+  .bad{color:var(--danger)}
+  .controls{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+  button{background:#1f2937;color:var(--ink);border:1px solid #2a394d;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.primary{background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#3b82f6}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .muted{color:var(--muted)}
+  .summary{margin-top:16px}
+  .kicker{color:#a7f3d0;font-weight:700}
+  .footer-note{margin-top:10px;color:var(--muted);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="logo.jpg" alt="UMST Logo" />
+    <div class="uni">University of Medical Sciences & Technology</div>
+    <div class="dept">Faculty of Medicine</div>
+    <div class="batch">Batch 30 & 28 – Abha Center</div>
+  </header>
+
+  <div class="card">
+    <div class="title">General Histology — MCQ Quiz</div>
+    <div class="meta">
+      <span class="pill">Batch 30 & 28 – Abha Center</span>
+      <span class="pill">Format: Clinical vignettes (simple)</span>
+      <span class="pill">Questions: <span id="total">0</span></span>
+      <span class="pill">Score: <b id="score">0</b></span>
+      <span class="pill">Q <b id="idx">0</b>/<b id="tidx">0</b></span>
+      <span class="pill" style="border-color:var(--accent); color:var(--accent);">Created by Dr. Salaheldin Terair</span>
+    </div>
+    <div class="meter"><span id="bar"></span></div>
+
+    <div id="mount" class="qbox"></div>
+
+    <div class="controls">
+      <button id="submitBtn" class="primary" disabled>Submit</button>
+      <button id="nextBtn" disabled>Next</button>
+      <button id="restartBtn">Restart</button>
+    </div>
+    <div class="footer-note">Tip: select an option, submit to see feedback, then go next.</div>
+  </div>
+</div>
+
+<script>
+/* -------------------- DATA -------------------- */
+/* Each question object:
+   q: text, options: ["A","B","C","D"], answer: index 0-3, explanation: text
+   Topic scope: General Histology (epithelium, connective tissue, cartilage, bone, blood, muscle, nervous tissue, staining) — no cell biology.
+*/
+const QUESTIONS = [
+  // EPITHELIUM (1–8)
+  { q: "A biopsy from the trachea shows epithelium with cilia and goblet cells where nuclei appear at different heights. Identify the epithelium.",
+    options: ["Stratified squamous non-keratinized","Simple columnar","Pseudostratified ciliated columnar","Transitional"],
+    answer: 2,
+    explanation: "Respiratory epithelium is pseudostratified ciliated columnar with goblet cells."
+  },
+  { q: "A cervical smear shows multiple layers with a surface of flattened nucleated cells, no keratin layer. Best classification?",
+    options: ["Keratinized stratified squamous","Non-keratinized stratified squamous","Stratified cuboidal","Simple squamous"],
+    answer: 1,
+    explanation: "Vagina/esophagus: stratified squamous non-keratinized—surface cells retain nuclei."
+  },
+  { q: "Renal proximal tubule lining has abundant microvilli forming a brush border. What is the epithelium?",
+    options: ["Simple cuboidal","Simple columnar","Simple squamous","Stratified cuboidal"],
+    answer: 0,
+    explanation: "Proximal tubules: simple cuboidal with a prominent brush border."
+  },
+  { q: "A bladder biopsy shows dome-shaped superficial cells that flatten when stretched. Identify the epithelium.",
+    options: ["Transitional (urothelium)","Stratified squamous non-keratinized","Stratified cuboidal","Simple columnar"],
+    answer: 0,
+    explanation: "Urothelium accommodates stretch; superficial umbrella cells flatten."
+  },
+  { q: "Which junction primarily seals the intercellular space to prevent paracellular leakage?",
+    options: ["Desmosome (macula adherens)","Tight junction (zonula occludens)","Gap junction","Hemidesmosome"],
+    answer: 1,
+    explanation: "Tight junctions form a diffusion barrier at the apical lateral membrane."
+  },
+  { q: "A gland secretes product via exocytosis without loss of cytoplasm (e.g., salivary glands). Mode of secretion?",
+    options: ["Merocrine","Apocrine","Holocrine","Endocrine"],
+    answer: 0,
+    explanation: "Merocrine secretion releases product by exocytosis; apocrine releases apical cytoplasm; holocrine entire cell."
+  },
+  { q: "Skin epidermis shows a surface anucleate layer with keratohyalin granules below. Best layer order (superficial→deep)?",
+    options: ["Basale→Spinosum→Granulosum→Corneum","Corneum→Granulosum→Spinosum→Basale","Spinosum→Basale→Granulosum→Corneum","Corneum→Spinosum→Basale→Granulosum"],
+    answer: 1,
+    explanation: "From surface: Stratum corneum → granulosum → spinosum → basale."
+  },
+  { q: "A biopsy from the gallbladder shows tall cells with microvilli but no goblet cells. Identify the epithelium.",
+    options: ["Simple squamous","Simple cuboidal","Simple columnar with microvilli","Pseudostratified ciliated columnar"],
+    answer: 2,
+    explanation: "Gallbladder is lined by simple columnar epithelium with microvilli for absorption."
+  },
+
+  // CONNECTIVE TISSUE & FIBERS (9–15)
+  { q: "A special stain highlights a delicate network of fibers supporting lymphoid cells in a lymph node. Which fiber type?",
+    options: ["Elastic fibers","Reticular fibers (type III collagen)","Type I collagen bundles","Actin filaments"],
+    answer: 1,
+    explanation: "Reticular fibers (type III collagen) form a fine meshwork in lymphoid organs and stain with silver (argyrophilic)."
+  },
+  { q: "Tendon shows parallel, densely packed collagen bundles with few fibroblast nuclei. Tissue type?",
+    options: ["Dense irregular CT","Loose (areolar) CT","Dense regular CT","Reticular tissue"],
+    answer: 2,
+    explanation: "Dense regular CT has parallel type I collagen bundles conferring tensile strength in one direction."
+  },
+  { q: "Skin dermis resists stress in multiple directions. Which connective tissue predominates?",
+    options: ["Loose areolar CT","Dense irregular CT","Dense regular CT","Elastic cartilage"],
+    answer: 1,
+    explanation: "Dense irregular CT has collagen bundles oriented in many directions for multidirectional stress."
+  },
+  { q: "Aorta wall contains sheets of elastin allowing recoil between pulses. Which fiber predominates?",
+    options: ["Type I collagen","Elastic fibers","Reticular fibers","Type II collagen"],
+    answer: 1,
+    explanation: "Elastic fibers/lamellae provide stretch and recoil in elastic arteries."
+  },
+  { q: "A wound granulation tissue is rich in new thin-walled vessels and fibroblasts. What cell type drives collagen synthesis here?",
+    options: ["Macrophages","Mast cells","Fibroblasts","Plasma cells"],
+    answer: 2,
+    explanation: "Fibroblasts synthesize collagen and ground substance during repair."
+  },
+  { q: "Plasma cells are best recognized by which light-microscopic feature?",
+    options: ["Eccentric nucleus with 'clock-face' chromatin","Central nucleolus only","Binucleation","Abundant eosinophilic granules"],
+    answer: 0,
+    explanation: "Plasma cells show eccentric nuclei with clumped chromatin and a perinuclear pale Golgi zone."
+  },
+  { q: "Which cell releases histamine and heparin and is prominent near small vessels in loose CT?",
+    options: ["Mast cell","Neutrophil","Eosinophil","Smooth muscle cell"],
+    answer: 0,
+    explanation: "Mast cells mediate immediate hypersensitivity; metachromatic granules."
+  },
+
+  // CARTILAGE & BONE (16–24)
+  { q: "A flexible epiglottis section shows cartilage with abundant elastic fibers and perichondrium. Identify the cartilage.",
+    options: ["Hyaline","Elastic","Fibrocartilage","Calcified cartilage"],
+    answer: 1,
+    explanation: "Elastic cartilage (epiglottis, auricle) has elastic fibers and perichondrium."
+  },
+  { q: "Intervertebral disc shows cartilage with thick collagen bundles and rows of chondrocytes, lacking perichondrium. Type?",
+    options: ["Hyaline","Elastic","Fibrocartilage","Calcified cartilage"],
+    answer: 2,
+    explanation: "Fibrocartilage has type I collagen bundles, no perichondrium; found in IV discs, menisci, pubic symphysis."
+  },
+  { q: "Articular cartilage at the knee is avascular and lacks perichondrium. Which cartilage is it?",
+    options: ["Hyaline","Elastic","Fibrocartilage","Hyaline with perichondrium"],
+    answer: 0,
+    explanation: "Articular cartilage is hyaline but lacks perichondrium; nutrients diffuse from synovial fluid."
+  },
+  { q: "Which cell type is directly responsible for bone resorption?",
+    options: ["Osteoblast","Osteocyte","Osteoclast","Chondroclast"],
+    answer: 2,
+    explanation: "Osteoclasts are multinucleated, derived from monocyte lineage; resorption lacunae (Howship)."
+  },
+  { q: "Compact bone shows concentric lamellae around a central canal. This structural unit is called:",
+    options: ["Trabecula","Osteoid","Osteon (Haversian system)","Canaliculi"],
+    answer: 2,
+    explanation: "An osteon has concentric lamellae around a Haversian canal; canaliculi connect osteocytes."
+  },
+  { q: "Endochondral ossification begins with a model made of:",
+    options: ["Dense CT","Hyaline cartilage","Fibrocartilage","Woven bone"],
+    answer: 1,
+    explanation: "Long bones develop from hyaline cartilage models replaced by bone."
+  },
+  { q: "In the epiphyseal growth plate, which zone shows active mitosis and stacks of chondrocytes?",
+    options: ["Zone of resting cartilage","Zone of proliferation","Zone of hypertrophy","Zone of ossification"],
+    answer: 1,
+    explanation: "Proliferation zone shows columns of dividing chondrocytes."
+  },
+  { q: "Which bone surface is lined by osteoblasts depositing unmineralized matrix (osteoid)?",
+    options: ["Resorption lacuna","Endosteal surface at growth sites","Cement lines","Volkmann’s canals"],
+    answer: 1,
+    explanation: "Osteoblasts line endosteal/periosteal surfaces during bone deposition."
+  },
+  { q: "Which collagen type predominates in bone matrix?",
+    options: ["Type I","Type II","Type III","Type IV"],
+    answer: 0,
+    explanation: "Bone is rich in type I collagen; cartilage (hyaline) is type II."
+  },
+
+  // BLOOD & HEMATOPOIESIS (25–28)
+  { q: "A peripheral smear shows large cells with bilobed nuclei and red cytoplasmic granules. Identify the leukocyte.",
+    options: ["Basophil","Eosinophil","Neutrophil","Monocyte"],
+    answer: 1,
+    explanation: "Eosinophils: bilobed nucleus, eosinophilic granules; parasitic and allergic responses."
+  },
+  { q: "Which leukocyte is the first responder in acute bacterial inflammation?",
+    options: ["Neutrophil","Monocyte","Lymphocyte","Basophil"],
+    answer: 0,
+    explanation: "Neutrophils are abundant, phagocytic, and arrive early in acute inflammation."
+  },
+  { q: "Platelets derive from the cytoplasm of which precursor?",
+    options: ["Megakaryocyte","Myeloblast","Promyelocyte","Reticulocyte"],
+    answer: 0,
+    explanation: "Platelets are fragments of megakaryocyte cytoplasm in bone marrow."
+  },
+  { q: "Which stain combination best describes routine histology slides?",
+    options: ["PAS–hematoxylin","H&E (hematoxylin & eosin)","Masson trichrome","Silver impregnation"],
+    answer: 1,
+    explanation: "Hematoxylin stains basophilic structures blue-purple; eosin stains acidophilic structures pink."
+  },
+
+  // MUSCLE (29–33)
+  { q: "A biopsy from biceps shows peripheral nuclei, cross striations, and fascicles. Tissue type?",
+    options: ["Smooth muscle","Cardiac muscle","Skeletal muscle","Myofibroblasts in CT"],
+    answer: 2,
+    explanation: "Skeletal muscle: long multinucleated fibers with peripheral nuclei and striations."
+  },
+  { q: "Myocardium shows branching fibers with intercalated discs. Which junction is key for electrical coupling?",
+    options: ["Desmosome","Gap junction","Hemidesmosome","Tight junction"],
+    answer: 1,
+    explanation: "Gap junctions in intercalated discs allow impulse spread between cardiomyocytes."
+  },
+  { q: "Smooth muscle in the intestine contracts without visible striations. What is a hallmark ultrastructural feature (conceptually)?",
+    options: ["Triads at A–I junction","Dense bodies anchoring actin","Sarcomeres with Z lines","Peripheral nuclei in syncytia"],
+    answer: 1,
+    explanation: "Smooth muscle has dense bodies and intermediate filaments; no sarcomeres/striations."
+  },
+  { q: "Skeletal muscle satellite cells primarily function in:",
+    options: ["Conduction of impulses","Calcium storage","Regeneration/repair","Phagocytosis"],
+    answer: 2,
+    explanation: "Satellite cells are muscle stem cells involved in growth and repair."
+  },
+  { q: "Cardiac muscle T-tubules are located at which level (human ventricular muscle)?",
+    options: ["At A–I junction forming triads","At Z line forming diads","At H zone","No T-tubules present"],
+    answer: 1,
+    explanation: "Cardiac muscle has diads at Z lines; skeletal muscle has triads at A–I junctions."
+  },
+
+  // NERVOUS TISSUE (34–37)
+  { q: "In a peripheral nerve cross-section, myelin sheaths are formed by:",
+    options: ["Oligodendrocytes","Astrocytes","Schwann cells","Microglia"],
+    answer: 2,
+    explanation: "Schwann cells myelinate PNS axons; oligodendrocytes myelinate CNS axons."
+  },
+  { q: "Which structure interrupts the myelin sheath and enables saltatory conduction?",
+    options: ["Nissl bodies","Nodes of Ranvier","Axon hillock","Dendritic spines"],
+    answer: 1,
+    explanation: "Nodes of Ranvier are gaps in myelin where voltage-gated channels cluster."
+  },
+  { q: "A dorsal root ganglion section shows large pseudounipolar neurons with centrally placed nuclei and satellite cells forming a complete ring. Ganglion type?",
+    options: ["Sympathetic (autonomic) ganglion","Parasympathetic ganglion","Sensory (dorsal root) ganglion","Enteric plexus"],
+    answer: 2,
+    explanation: "Sensory ganglia have pseudounipolar neurons and a continuous layer of satellite cells."
+  },
+  { q: "Autonomic sympathetic ganglion histology typically shows:",
+    options: ["Pseudounipolar neurons; satellite cell ring","Multipolar neurons; eccentrically placed nuclei; fewer satellite cells","Purkinje cells; elaborate dendrites","Granule cells; densely packed layers"],
+    answer: 1,
+    explanation: "Sympathetic ganglia contain multipolar neurons with less uniform satellite cell coverage."
+  },
+
+  // STAINS & SLIDE INTERPRETATION (38–40)
+  { q: "A basement membrane is highlighted strongly by PAS staining in a kidney biopsy. Which component is chiefly detected?",
+    options: ["Type I collagen","Elastin","Glycoproteins and proteoglycans","Actin filaments"],
+    answer: 2,
+    explanation: "PAS stains carbohydrate-rich structures: glycoproteins/proteoglycans in basement membranes."
+  },
+  { q: "Masson trichrome stain colors collagen fibers predominantly:",
+    options: ["Blue/Green","Red","Black","Yellow"],
+    answer: 0,
+    explanation: "Masson trichrome: collagen blue/green; muscle/cytoplasm red; nuclei dark."
+  },
+  { q: "A liver section shows sinusoids lined by discontinuous endothelium and reticular fibers supporting hepatocyte plates. The supporting framework primarily contains:",
+    options: ["Type I collagen bundles","Type III collagen (reticulin)","Elastic lamellae","Type II collagen"],
+    answer: 1,
+    explanation: "Liver stroma is rich in type III collagen (reticulin) forming a delicate network."
+  }
+];
+
+/* -------------------- QUIZ ENGINE -------------------- */
+let idx = 0;               // 0-based question index
+let score = 0;             // +1 per correct
+let answered = false;
+
+const $mount = document.getElementById("mount");
+const $submit = document.getElementById("submitBtn");
+const $next = document.getElementById("nextBtn");
+const $restart = document.getElementById("restartBtn");
+const $score = document.getElementById("score");
+const $bar = document.getElementById("bar");
+const $idx = document.getElementById("idx");
+const $tidx = document.getElementById("tidx");
+const $total = document.getElementById("total");
+
+$total.textContent = QUESTIONS.length;
+$tidx.textContent = QUESTIONS.length;
+
+function renderQuestion() {
+  const q = QUESTIONS[idx];
+  $mount.innerHTML = `
+    <div class="q"><span class="pill" style="border-color:#334155">Q${idx+1}</span> ${q.q}</div>
+    <div class="options">
+      ${q.options.map((opt,i)=>`
+        <label class="opt">
+          <input type="radio" name="opt" value="${i}">
+          <div>${String.fromCharCode(65+i)}. ${opt}</div>
+        </label>
+      `).join("")}
+    </div>
+    <div id="fb" class="feedback muted"></div>
+  `;
+  $idx.textContent = idx+1;
+  answered = false;
+  $submit.disabled = true;
+  $next.disabled = true;
+
+  // enable submit when an option is chosen
+  [...$mount.querySelectorAll('input[type=radio]')].forEach(r=>{
+    r.addEventListener('change', ()=>{ $submit.disabled = false; });
+  });
+
+  updateMeter();
+}
+
+function updateMeter(){
+  const pct = Math.round(((idx) / QUESTIONS.length) * 100);
+  $bar.style.width = pct + "%";
+}
+
+$submit.addEventListener('click', ()=>{
+  if (answered) return;
+  const sel = $mount.querySelector('input[type=radio]:checked');
+  if (!sel) return;
+  answered = true;
+  const choice = Number(sel.value);
+  const q = QUESTIONS[idx];
+  const fb = document.getElementById('fb');
+
+  if (choice === q.answer) {
+    score += 1;
+    fb.innerHTML = `<span class="good">Correct.</span> ${q.explanation}`;
+  } else {
+    fb.innerHTML = `<span class="bad">Not quite.</span> ${q.explanation}`;
+  }
+  document.getElementById('score').textContent = score;
+  $next.disabled = false;
+  $submit.disabled = true;
+});
+
+$next.addEventListener('click', ()=>{
+  if (idx < QUESTIONS.length - 1) {
+    idx += 1;
+    renderQuestion();
+  } else {
+    finish();
+  }
+});
+
+$restart.addEventListener('click', ()=>{
+  idx = 0; score = 0;
+  document.getElementById('score').textContent = score;
+  renderQuestion();
+});
+
+function finish(){
+  $mount.innerHTML = `
+    <div class="summary">
+      <div class="kicker">Quiz Complete</div>
+      <p>You scored <b>${score}</b> / <b>${QUESTIONS.length}</b>.</p>
+      <p class="muted">Review: refresh the page or press <b>Restart</b> to try again.</p>
+    </div>
+  `;
+  $next.disabled = true;
+  $submit.disabled = true;
+  $bar.style.width = "100%";
+}
+
+/* init */
+renderQuestion();
+</script>
+</body>
+</html>
